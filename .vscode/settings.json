@@ -1,5 +1,9 @@
 {
   "python.analysis.typeCheckingMode": "basic",
   "python.linting.flake8Args": ["--ignore=E501", "--ignore=E266"],
-  "python.analysis.extraPaths": ["./ai"]
+  "python.analysis.extraPaths": ["./ai"],
+  "[python]": {
+    "editor.defaultFormatter": "ms-python.autopep8"
+  },
+  "python.formatting.provider": "none"
 }

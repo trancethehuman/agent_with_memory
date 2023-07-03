@@ -1,4 +1,4 @@
-# Agent with Memory
+# LangChain AI Companion (Replika & Paradot.ai clone)
 
 Activate virtual environment
 

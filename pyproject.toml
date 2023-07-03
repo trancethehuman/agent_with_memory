@@ -18,6 +18,7 @@ openai = "*"
 faiss-cpu = "*"
 fastapi = "*"
 unstructured = "*"
+tiktoken = "*"
 
 
 [build-system]

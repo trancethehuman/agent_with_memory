@@ -30,12 +30,12 @@ AI:"""
 life_coach_prompt = PromptTemplate.from_template(
     template=LIFE_COACH_PROMPT_TEMPLATE)
 
-conversation = LLMChain(
+conversation_chain = LLMChain(
     llm=llm_stream, verbose=True, prompt=life_coach_prompt, output_key="response")
 
 
-def talk_to_ai(messages_history_counter, messages_history_threshold):
-    print("Angie may see you now...")
+def talk_to_ai(messages_history_counter, messages_history_threshold, verbose: bool = False):
+    print("\nYour life coach may see you now...")
     while True:
         messages_history_counter += 1
 
@@ -48,7 +48,9 @@ def talk_to_ai(messages_history_counter, messages_history_threshold):
 
         formatted_entities = convert_entities_to_formatted_string(entities)
 
-        ai_response = conversation(
+        conversation_chain.verbose = verbose
+
+        ai_response = conversation_chain(
             {"entities": formatted_entities, "input": user_input, "messages_history": formatted_messages_history, "summary": previous_messages_summary})
 
         messages_history.add_user_message(user_input)

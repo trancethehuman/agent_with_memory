@@ -2,7 +2,7 @@
 name = "agent-with-memory"
 version = "0.1.0"
 description = "testing an agent with memory"
-authors = ["hainghiem <hainghiem375@gmail.com>"]
+authors = ["hainghiem <hai@dhaiconsulting.com>"]
 license = "MIT"
 readme = "README.md"
 packages = [{include = "agent_with_memory"}]

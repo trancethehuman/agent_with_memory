@@ -1,13 +1,4 @@
-from agent import initialize_agent_with_new_openai_functions
-from tools import agent_tools, user_data
+from agent import talk_to_ai
+from memory import messages_history_counter, messages_history_threshold
 
-agent = initialize_agent_with_new_openai_functions(
-    tools=agent_tools)
-
-
-while True:
-    request = input(
-        "\n\nRequest: ")
-    result = agent({"input": request})
-    answer = result["output"]
-    # print(answer)
+talk_to_ai(messages_history_counter, messages_history_threshold)

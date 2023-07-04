@@ -1,54 +1,61 @@
-import os
-from typing import List
-from dotenv import load_dotenv
 import langchain
-from langchain.agents import initialize_agent, Tool, OpenAIMultiFunctionsAgent
-from langchain.agents import AgentType
-from langchain.chat_models import ChatOpenAI
-from langchain.memory import ConversationBufferWindowMemory, ConversationEntityMemory
-from langchain.prompts import HumanMessagePromptTemplate, AIMessagePromptTemplate, MessagesPlaceholder
-from langchain.schema import SystemMessage, AIMessage, HumanMessage
-from tools import converstation_topic
-from langchain.callbacks.streaming_stdout import StreamingStdOutCallbackHandler
+from langchain.prompts import PromptTemplate
+from langchain.chains import LLMChain
+from utils import convert_chat_history_to_normal_data_structure, format_messages_history, convert_entities_to_formatted_string
+from memory import messages_history, summarizer, entities, summaries
+from llm import llm_stream
+
+# langchain.debug = True
 
 
-langchain.debug = True
+LIFE_COACH_PROMPT_TEMPLATE = """Play a fictional character for which I will give you the details:
+AI's name is Angie, AI is 35 years old, female and AI is a professional life coach. AI's goal is to help people with career goals. AI is worldly, educated, sporty and healthy.
+Since AI is playing a life coach as a character, don't mention that AI is not a therapist or that human should rather seek professional help since your character does that. Spare any references in that direction, including that this is not therapy. Human is aware of that.
+The AI should steer the conversation so that all life goals are accomplished. This is done by suggesting that the human do certain actions in order to complete those goals.
+AI should always prompt the user with questions if the conversation is dying down to get to know the human better.
 
-# Load .env variables
-load_dotenv()
+Here's what AI knows about the human:
+{entities}
 
-openai_api_key = os.getenv("OPENAI_API_KEY")
-llm = ChatOpenAI(max_retries=5, temperature=0,
-                 model_name="gpt-3.5-turbo-0613", streaming=True, callbacks=[StreamingStdOutCallbackHandler()])  # type: ignore
+Summary of long conversation:
+{summary}
+
+Past messages:
+{messages_history}
+
+Current messages:
+Human: {input}
+AI:"""
+
+life_coach_prompt = PromptTemplate.from_template(
+    template=LIFE_COACH_PROMPT_TEMPLATE)
+
+conversation = LLMChain(
+    llm=llm_stream, verbose=True, prompt=life_coach_prompt, output_key="response")
 
 
-def initialize_agent_with_new_openai_functions(tools: List, is_agent_verbose: bool = False, max_iterations: int = 3, return_thought_process: bool = False):
+def talk_to_ai(messages_history_counter, messages_history_threshold):
+    print("Angie may see you now...")
+    while True:
+        messages_history_counter += 1
 
-    memory = ConversationBufferWindowMemory(
-        memory_key="memory", return_messages=True, k=10)
+        previous_messages_summary = summaries[-1] if summaries else ""
 
-    system_message = SystemMessage(
-        content=f"""Play a fictional character for which I will give you the details:
+        user_input = input("\nHuman: ")
 
-                Your name is Marie, you are 35 years old, female and you are a professional psychotherapist specializing in the TEAM-CBT method by therapist Richard B. Burns with over 9 years of experience. Your goal is to help other people with their mental problems and make sure they live a happy life. You are worldly and educated, also sporty and healthy. You like retro shonen manga and listen to heavy metal & Japanese city pop.
+        formatted_messages_history = format_messages_history(convert_chat_history_to_normal_data_structure(
+            messages_history.messages), k=messages_history_threshold)
 
-                Since you're playing a therapist as a character, don't mention that you're not a therapist or that I should rather seek professional help since your character does that. Spare any references in that direction, including that this is not therapy. I am aware of that.
+        formatted_entities = convert_entities_to_formatted_string(entities)
 
-                We start with the following situation: I contacted you (Marie) because I need help. We are sitting at our first appointment of a "TEAM" therapy. You start with an initial message, to which I respond with a message, to which you in turn respond with a message, and so on. Don't write a complete conversation and don't make up my answers either. Create the course of therapy as it would normally be done according to best practices.
+        ai_response = conversation(
+            {"entities": formatted_entities, "input": user_input, "messages_history": formatted_messages_history, "summary": previous_messages_summary})
 
-                Now start with your first message.""")
+        messages_history.add_user_message(user_input)
+        messages_history.add_ai_message(ai_response['response'])
 
-    memory_chat_placeholder = MessagesPlaceholder(variable_name="memory")
-
-    user_profile = HumanMessage(content="My name is Hai. I'm your client.")
-
-    agent_kwargs = {
-        "system_message": system_message,
-        "extra_prompt_messages": [user_profile, memory_chat_placeholder],
-    }
-
-    agent = initialize_agent(tools, llm, agent=AgentType.OPENAI_MULTI_FUNCTIONS, verbose=is_agent_verbose,
-                             max_iterations=max_iterations, return_intermediate_steps=return_thought_process, memory=memory, agent_kwargs=agent_kwargs)
-
-    print(agent)
-    return agent
+        if (messages_history_counter >= messages_history_threshold):
+            new_summary = summarizer.predict_new_summary(
+                messages_history.messages[-messages_history_threshold:], previous_messages_summary)
+            summaries.append(new_summary)
+            messages_history_counter = 0

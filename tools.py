@@ -1,22 +1,14 @@
-from pydantic import BaseModel, Field, validator
-from typing import List, Optional, Type
+from pydantic import BaseModel, Field
+from typing import List
 from langchain.tools import tool
-from langchain.tools import BaseTool, Tool, StructuredTool
 from memory import entities
 import json
 
 
 def update_human_profile(entities, key, content):
-    if key == 'goals':
-        name = content.get('name', '')
-        description = content.get('description', '')
-        achieved = content.get('achieved', False)
-        entities[key]['content'].append(
-            {'name': name, 'description': description, 'achieved': achieved})
-    else:
-        entities[key]['content'].extend(content)
-        print("\n\n" + key + " has been updated.")
-        print(json.dumps(entities, indent=4))
+    entities[key]['content'].extend(content)
+    print("\n\n" + key + " has been updated.")
+    # print(json.dumps(entities, indent=4))
 
 
 class UpdateProfile(BaseModel):

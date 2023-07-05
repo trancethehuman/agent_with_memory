@@ -1,9 +1,10 @@
 from agents import AICompanionAgent, EntitiesExtractionAgent
+from memory import messages_history
 from prompts import COMPANION_PROMPT_TEMPLATE
 from tools import entities_extraction_tools
 import threading
 
-companion_agent = AICompanionAgent(COMPANION_PROMPT_TEMPLATE, verbose=True)
+companion_agent = AICompanionAgent(COMPANION_PROMPT_TEMPLATE, verbose=False)
 
 user_profile_updater = EntitiesExtractionAgent(
     tools=entities_extraction_tools)

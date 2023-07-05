@@ -19,4 +19,4 @@ while True:
     profile_update_thread.start()
 
     # Perform companion agent talk in the main thread
-    print(companion_agent.talk(user_input))
+    print("\nAI:" + " " + companion_agent.talk(user_input))

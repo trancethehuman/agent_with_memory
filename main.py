@@ -1,5 +1,4 @@
 from agents import AICompanionAgent, EntitiesExtractionAgent
-from memory import messages_history
 from prompts import COMPANION_PROMPT_TEMPLATE
 from tools import entities_extraction_tools
 import threading

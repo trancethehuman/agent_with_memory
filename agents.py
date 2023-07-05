@@ -8,7 +8,6 @@ from utils import convert_chat_history_to_normal_data_structure, format_messages
 from memory import messages_history, summarizer, entities, summaries
 from llm import llm_stream, llm_non_stream
 
-
 # langchain.debug = True
 
 
@@ -16,7 +15,7 @@ class AICompanionAgent:
     def __init__(self, prompt_template, messages_history_threshold: int = 15, verbose: bool = False):
         self.prompt = PromptTemplate.from_template(template=prompt_template)
         self.conversation_chain = LLMChain(
-            llm=llm_stream, verbose=True, prompt=self.prompt, output_key="response")
+            llm=llm_non_stream, verbose=True, prompt=self.prompt, output_key="response")
         self.messages_history_threshold = messages_history_threshold
         self.messages_history_counter = 0
         self.verbose = verbose
@@ -45,19 +44,23 @@ class AICompanionAgent:
             summaries.append(new_summary)
             self.messages_history_counter = 0
 
+        return ai_response['response']
 
-def initialize_openai_functions_entities_extraction_agent(tools: List, is_agent_verbose: bool = False, max_iterations: int = 3, return_thought_process: bool = False):
-    entities_extraction_message = SystemMessage(
-        content=f"""Use your judgement and pick out the information you need from the following list of human's data:
-        {entities}
-        Then use a tool to update the human's profile.
-        .""")
 
-    agent_kwargs = {
-        "system_message": entities_extraction_message,
-    }
+class EntitiesExtractionAgent:
+    def __init__(self, tools: List, is_agent_verbose: bool = False, max_iterations: int = 3, return_thought_process: bool = False):
+        entities_extraction_message = SystemMessage(
+            content=f"""Use your judgement and pick out the information you need from the human's new message, based on the following list of human's data:
+            {entities}
+            Use a tool to update the human's profile if new information is presented. Don't update if there isn't new information from the human's message.
+            .""")
 
-    agent = initialize_agent(tools, llm_non_stream, agent=AgentType.OPENAI_FUNCTIONS, verbose=is_agent_verbose,
-                             max_iterations=max_iterations, return_intermediate_steps=return_thought_process, agent_kwargs=agent_kwargs)
+        agent_kwargs = {
+            "system_message": entities_extraction_message,
+        }
 
-    return agent
+        self.agent = initialize_agent(tools, llm_non_stream, agent=AgentType.OPENAI_FUNCTIONS, verbose=is_agent_verbose,
+                                      max_iterations=max_iterations, return_intermediate_steps=return_thought_process, agent_kwargs=agent_kwargs)
+
+    def update_user_profile(self, user_input):
+        return self.agent({"input": user_input})

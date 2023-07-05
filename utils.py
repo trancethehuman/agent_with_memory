@@ -29,9 +29,9 @@ def convert_entities_to_formatted_string(entities):
         if isinstance(value['content'], list):
             if value['content']:
                 result += "\n" + value['description'] + \
-                    " " + ", ".join(value['content']) + ". "
+                    " They are " + ", ".join(value['content']) + ". "
             else:
-                result += f"\nAI doesn't know {key}."
+                result += f"\nAI doesn't know the human's {key}."
         elif isinstance(value['content'], dict):
             if value['content']['is_achieved']:
                 result += f"\n{value['description']} {value['content']['name']} (achieved)"

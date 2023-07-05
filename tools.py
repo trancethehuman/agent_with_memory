@@ -3,6 +3,7 @@ from typing import List, Optional, Type
 from langchain.tools import tool
 from langchain.tools import BaseTool, Tool, StructuredTool
 from memory import entities
+import json
 
 
 def update_human_profile(entities, key, content):
@@ -14,7 +15,8 @@ def update_human_profile(entities, key, content):
             {'name': name, 'description': description, 'achieved': achieved})
     else:
         entities[key]['content'].extend(content)
-        print("\n" + key + " has been updated.")
+        print("\n\n" + key + " has been updated.")
+        print(json.dumps(entities, indent=4))
 
 
 class UpdateProfile(BaseModel):
@@ -29,11 +31,9 @@ def update_profile(key: str, value: List[str]):
     """If the human's message presents a new piece of information about their profile, then update their profile."""
     update_human_profile(entities, key, value)
 
-    print(entities)
-
-    return "the human's profile has been updated"
+    return "\n\nThe human's profile has been updated"
 
 
-agent_tools = [
+entities_extraction_tools = [
     update_profile
 ]

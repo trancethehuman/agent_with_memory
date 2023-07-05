@@ -28,9 +28,5 @@ entities = {
         "content": []
     }
 }
-
 summarizer = ConversationSummaryMemory(
     llm=llm_non_stream, return_messages=False)
-
-messages_history_counter = 0
-messages_history_threshold = 10

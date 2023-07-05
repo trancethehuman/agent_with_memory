@@ -1,4 +1,6 @@
-# AI Companion (Replika clone)
+# AI Companion (Replika / Paradot clone)
+
+<img src="./readme_resources/replika.jpg" alt="replika" width="450">
 
 ### Why this is cool
 

@@ -31,6 +31,7 @@ How memory works
 ### Activate virtual environment
 
 `.\agent-with-memory\Scripts\activate` (Windows)
+
 `source agent-with-memory/bin/activate` (Mac)
 
 ### Install dependencies

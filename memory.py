@@ -12,15 +12,15 @@ entities = {
         "content": [],
     },
     "likes": {
-        "description": "These are hobbies, preferences, tastes.",
+        "description": "Human's hobbies, preferences, tastes.",
         "content": [],
     },
     "dislikes": {
-        "description": "These are things the human dislikes or hates.",
+        "description": "Human's dislikes or hates.",
         "content": []
     },
     "traits": {
-        "description": "These are personality traits like introversion and extroversion.",
+        "description": "Human's personality traits like introversion and extroversion.",
         "content": []
     },
 }
